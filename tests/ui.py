@@ -16,7 +16,7 @@ def run():
    page.clock.fast_forward(260)
    page.get_by_role('button',name=name,exact=True).tap()
   def phase(s):expect(page.locator('main')).to_have_attribute('data-phase',s)
-  def count(n):expect(page.get_by_label('Number of players',exact=True)).to_have_text(str(n))
+  def count(n):expect(page.locator('output')).to_have_text(str(n))
   def fit(): assert page.evaluate('document.documentElement.scrollHeight <= innerHeight'), 'Unexpected scrolling'
   count(4);fit();tap('Decrease number of players');count(3)
   expect(page.get_by_label('Decrease number of players')).to_be_disabled()
@@ -57,7 +57,7 @@ def run():
    if r%5==0:
     tap('Change player count');phase('SETUP')
     target=3+(r//5)%18
-    current=int(page.get_by_label('Number of players',exact=True).inner_text())
+    current=int(page.locator('output').inner_text())
     while current!=target:
      tap('Increase number of players' if current<target else 'Decrease number of players');current+=1 if current<target else -1
     new=complete_round(target)

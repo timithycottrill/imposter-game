@@ -33,8 +33,8 @@ for attempt in range(20):
 else:raise AssertionError('APK failed to launch offline')
 screen('START ROUND')
 (ART/'android-setup.png').write_bytes(adb('exec-out','screencap','-p'))
-tap('Increase number of players');screen('5')
-tap('Decrease number of players');screen('4')
+tap('Increase number of players');screen('Number of players: 5')
+tap('Decrease number of players');screen('Number of players: 4')
 last=None
 for r in range(3):
  tap('START ROUND' if r==0 else 'NEW ROUND')
@@ -55,8 +55,8 @@ for r in range(3):
  tap('REVEAL ANSWER');visible=texts(screen('THE IMPOSTER'))
  assert roles[0] in visible;assert f'PLAYER {imposters[0]}' in visible
  assert roles[0]!=last;last=roles[0]
-tap('Change player count');screen('4')
+tap('Change player count');screen('Number of players: 4')
 adb('shell','am','force-stop','com.imposter.game');adb('shell','am','start','-n','com.imposter.game/.MainActivity');time.sleep(2)
-screen('START ROUND');screen('4')
+screen('START ROUND');screen('Number of players: 4')
 result={'offline_first_launch':True,'native_touch_rounds':3,'count_controls':True,'private_roles_and_answers':True,'new_round':True,'reload_and_count_persistence':True,'platform':'Android 35 emulator','physical_samsung_tested':False}
 (ART/'android-results.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))

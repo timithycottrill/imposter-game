@@ -36,7 +36,7 @@ export default function App() {
     case 'SETUP':
       content = <>{title('IMPOSTER')}{label('NUMBER OF PLAYERS')}<div className="counter">
         <button type="button" className="step" aria-label="Decrease number of players" disabled={state.count === 3} onClick={() => send({ type: 'COUNT', count: state.count - 1 })}>−</button>
-        <output aria-live="polite" aria-label="Number of players">{state.count}</output>
+        <output aria-live="polite" aria-label={`Number of players: ${state.count}`}>{state.count}</output>
         <button type="button" className="step" aria-label="Increase number of players" disabled={state.count === 20} onClick={() => send({ type: 'COUNT', count: state.count + 1 })}>+</button>
       </div></>;
       footer = button('START ROUND', { type: 'START' }); break;
