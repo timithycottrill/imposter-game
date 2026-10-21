@@ -1,9 +1,17 @@
 """Install the real APK and play three rounds offline using Android touch events."""
-import json, re, subprocess, time, xml.etree.ElementTree as ET
+import json, re, subprocess, time, sys, xml.etree.ElementTree as ET
 from pathlib import Path
 ART=Path('artifacts');ART.mkdir(exist_ok=True)
 def adb(*args):
  return subprocess.check_output(['adb',*args],timeout=40)
+def diagnostics(kind,error,traceback):
+ try:
+  (ART/'android-logcat.txt').write_bytes(adb('logcat','-d','-t','250'))
+  (ART/'android-failure.png').write_bytes(adb('exec-out','screencap','-p'))
+ except Exception: pass
+ sys.__excepthook__(kind,error,traceback)
+sys.excepthook=diagnostics
+
 def nodes():
  for attempt in range(4):
   try:
@@ -56,7 +64,11 @@ for r in range(3):
  assert roles[0] in visible;assert f'PLAYER {imposters[0]}' in visible
  assert roles[0]!=last;last=roles[0]
 tap('Change player count');screen('Number of players: 4')
-adb('shell','am','force-stop','com.imposter.game');adb('shell','am','start','-n','com.imposter.game/.MainActivity');time.sleep(2)
+adb('shell','am','force-stop','com.imposter.game');adb('shell','am','start','-n','com.imposter.game/.MainActivity')
+for attempt in range(20):
+ if 'START ROUND' in texts(nodes()):break
+ time.sleep(1)
+else:raise AssertionError('APK did not return to setup after restarting offline')
 screen('START ROUND');screen('Number of players: 4')
 result={'offline_first_launch':True,'native_touch_rounds':3,'count_controls':True,'private_roles_and_answers':True,'new_round':True,'reload_and_count_persistence':True,'platform':'Android 35 emulator','physical_samsung_tested':False}
 (ART/'android-results.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))

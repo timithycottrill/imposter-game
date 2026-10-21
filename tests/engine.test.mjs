@@ -5,9 +5,9 @@ import { initialState, transition, generateRound, roleFor, randomIndex, WORDS } 
 
 test('curated library has at least 150 unique words with broad one-word hints', () => {
   assert.ok(WORDS.length >= 150); assert.equal(new Set(WORDS.map(e => e.word)).size, WORDS.length);
-  for (const {word,hint} of WORDS) {
+  for (const {word,hint,topic} of WORDS) {
     assert.match(word,/^[A-Z]+(?:-[A-Z]+)?$/); assert.match(hint,/^[A-Z]+$/);
-    assert.notEqual(word,hint); assert.ok(!word.includes(hint));
+    assert.notEqual(hint,topic); assert.notEqual(word,hint); assert.ok(!word.includes(hint));
   }
 });
 test('default, bounds, invalid counts and invalid transitions', () => {
