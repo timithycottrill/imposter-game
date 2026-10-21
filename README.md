@@ -1,5 +1,9 @@
 # IMPOSTER
 
+- [Play the verified HTTPS game](https://timithycottrill.github.io/imposter-game/)
+- [Download IMPOSTER.apk](https://github.com/timithycottrill/imposter-game/releases/download/android-latest/IMPOSTER.apk)
+- [Android release details](https://github.com/timithycottrill/imposter-game/releases/tag/android-latest)
+
 Minimal offline pass-and-play party game for 3–20 players. React, TypeScript, Vite, a PWA, and a Capacitor Android app. No backend, accounts, analytics, or external gameplay services.
 
 ## Play
