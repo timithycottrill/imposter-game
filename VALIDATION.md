@@ -46,3 +46,16 @@ The Android accessibility test also found that the count output's accessible nam
 - Web test/deploy/live check: https://github.com/timithycottrill/imposter-game/actions/runs/39687958585
 - Android build/lint/offline check/release: https://github.com/timithycottrill/imposter-game/actions/runs/39687958633
 - The picture subjects are bundled illustrations with procedurally randomized scenes, not a runtime image-generation API. Physical Samsung hardware testing remains unverified. The APK is development-signed; upgrading from a differently signed test build requires uninstalling that older build first.
+
+
+## Semi-vague hints edition 1.1.1
+
+- Approved level applied throughout the 349-entry library: Elephant → Herd; Pizza → Sharing; Dinosaur → Ancient; Penguin → Colony; Toothbrush → Routine.
+- Application commit: `6ed384b6734392fbaf566cc15f5deb62f5e19f15`.
+- All eight engine tests passed (including 1,282 simulated full rounds), as did production compilation, 102 complete mobile browser rounds against the public HTTPS URL, Android compilation/lint, and three offline Android emulator rounds including cold restart.
+- Existing topics, images, private roles, and New Round behavior are preserved.
+- Web verification: https://github.com/timithycottrill/imposter-game/actions/runs/39689620878
+- Android verification: https://github.com/timithycottrill/imposter-game/actions/runs/39689620854
+- APK: https://github.com/timithycottrill/imposter-game/releases/download/android-v1.1.1/IMPOSTER.apk
+- Size: 5245751 bytes. Digest: `sha256:b7582e70220d26dfcb557489af467b7c131bc750a1afae9a31835113df622c9e`.
+- Development-signed APK; physical Samsung hardware remains unverified.
