@@ -374,7 +374,7 @@ size=128; cols=16; atlas=Image.new('RGBA',(cols*size, math.ceil(len(words)/cols)
 index={}
 import subprocess
 def svg_png(text):
- return subprocess.check_output(["node","-e","require('/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp')(Buffer.from(process.argv[1])).png().toBuffer().then(b=>process.stdout.write(b))",text])
+ return subprocess.check_output(["node","-e","require(process.env.PICTURE_SHARP_MODULE || 'sharp')(Buffer.from(process.argv[1])).png().toBuffer().then(b=>process.stdout.write(b))",text])
 for i,line in enumerate(words):
  word=line.split('|')[0].upper();tile=Image.new('RGBA',(size,size));index[word]=i
  if word in S:
