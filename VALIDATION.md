@@ -30,3 +30,19 @@ Actual Galaxy hardware and Samsung-specific installation UI have not been tested
 - APK uses a development signing certificate. Physical Samsung hardware and Google Play distribution are not verified.
 
 The Android accessibility test also found that the count output's accessible name omitted its numeric value. The label now includes the selected count; the affected browser and Android tests were repeated and passed.
+
+
+## Picture and Topics Edition 1.1
+
+- Application commit: `047d21b76d04b6c89d67ac8325da97ad2afa49ab`.
+- 349 word/hint/picture entries; all 302 original hints revised, plus 47 holiday entries.
+- 11 choices: Random Mix, Holidays, Animals, Food & Drink, Nature, Space, Sports & Games, Music, Places, Travel & Vehicles, Everyday Things.
+- Eight engine tests passed, including 1,282 complete simulated rounds, picture coverage, distinct stable player scenes, topic filtering, and topic persistence.
+- 102 complete mobile browser rounds passed against the live HTTPS site, with topic selection, offline Holiday play, offline picture caching, no private hint/word-picture disclosure to the imposter, unique player scene variants, and no console or installability errors.
+- APK compilation and Android lint passed. Three full offline native touch rounds, first offline launch, controls, role privacy, correct answers, New Round, restart, and count persistence passed on an Android 35 emulator.
+- The restart test now waits for the setup screen rather than assuming startup completes in two seconds.
+- APK: https://github.com/timithycottrill/imposter-game/releases/download/android-v1.1.0/IMPOSTER.apk
+- Size: 5,245,683 bytes. SHA-256: `83a45e4971fb970d632cc84fba09bda1803978e13c36fb3c5d96eca9738d25e0`.
+- Web test/deploy/live check: https://github.com/timithycottrill/imposter-game/actions/runs/39687958585
+- Android build/lint/offline check/release: https://github.com/timithycottrill/imposter-game/actions/runs/39687958633
+- The picture subjects are bundled illustrations with procedurally randomized scenes, not a runtime image-generation API. Physical Samsung hardware testing remains unverified. The APK is development-signed; upgrading from a differently signed test build requires uninstalling that older build first.
