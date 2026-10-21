@@ -1,16 +1,16 @@
 # IMPOSTER
 
 - [Play the verified HTTPS game](https://timithycottrill.github.io/imposter-game/)
-- [Download IMPOSTER.apk](https://github.com/timithycottrill/imposter-game/releases/download/android-v1.1.0/IMPOSTER.apk)
-- [Android release details](https://github.com/timithycottrill/imposter-game/releases/tag/android-v1.1.0)
+- [Download IMPOSTER.apk](https://github.com/timithycottrill/imposter-game/releases/download/android-v1.1.1/IMPOSTER.apk)
+- [Android release details](https://github.com/timithycottrill/imposter-game/releases/tag/android-v1.1.1)
 
-## Picture Edition (1.1)
+## Picture Edition (1.1.1)
 
 Regular players see a picture plus the secret word. All 349 subjects have bundled art. Each player receives a different randomized illustrated scene (colors, framing, orientation, and composition) of the same subject. These are offline illustrations, not a live image-generation service. The base subject illustration is shared; its scene varies per player. Hiding/revealing again preserves the assigned picture. Exactly one imposter sees a funny, mischievous guy in a red hoodie and mask with **IMPOSTER**, without a secret-word picture. Red is only applied after Reveal so the pass-phone screen cannot leak the role.
 
 The atlas combines Noto Emoji artwork with 71 original compact vector pictures for subjects without a corresponding emoji. The imposter character is a generated illustration. Licenses are bundled in `public/art`. `scripts/make-picture-atlas.py` optionally rebuilds the atlas with Pillow, the Noto Color Emoji font, and Node sharp; normal builds use the tracked art. If cloning the initial source commit before its atlas is bundled, run `bash scripts/prepare-art.sh` on Ubuntu first. You can set `PICTURE_FONT` and `PICTURE_SHARP_MODULE` for local installations.
 
-Topics include Random Mix, Holidays (47 entries), Animals, Food & Drink, Nature, Space, Sports & Games, Music, Places, Travel & Vehicles, and Everyday Things. The selected topic and player count persist across rounds. Hints use clearer associations such as Elephant → Safari, Pizza → Takeaway, and Dinosaur → Fossil.
+Topics include Random Mix, Holidays (47 entries), Animals, Food & Drink, Nature, Space, Sports & Games, Music, Places, Travel & Vehicles, and Everyday Things. The selected topic and player count persist across rounds. Hints use semi-vague associations such as Elephant → Herd, Pizza → Sharing, Dinosaur → Ancient, Penguin → Colony, and Toothbrush → Routine.
 
 Minimal offline pass-and-play party game for 3–20 players. React, TypeScript, Vite, a PWA, and a Capacitor Android app. No backend, accounts, analytics, or external gameplay services.
 
