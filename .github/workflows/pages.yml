@@ -53,3 +53,25 @@ jobs:
     steps:
       - uses: actions/deploy-pages@v4
         id: deployment
+
+  verify-live:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright
+      - run: python -m playwright install --with-deps chromium
+      - name: Verify full game at public HTTPS URL
+        env:
+          GAME_URL: https://timithycottrill.github.io/imposter-game/
+        run: |
+          curl --fail --retry 5 --retry-delay 5 "$GAME_URL"
+          CHROMIUM_PATH="$(python -c 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()')" python tests/ui.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-test-results
+          path: artifacts/

@@ -4,7 +4,7 @@ on:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -29,6 +29,30 @@ jobs:
       - run: chmod +x android/gradlew
       - run: ./gradlew assembleDebug lintDebug
         working-directory: android
+      - name: Enable emulator acceleration
+        run: sudo chmod 666 /dev/kvm
+      - name: Play real Android APK offline
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          profile: pixel_7
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: python3 tests/android_smoke.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-test-results
+          path: artifacts/
+      - name: Publish downloadable APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk IMPOSTER.apk
+          gh release view android-latest >/dev/null 2>&1 || gh release create android-latest --target "$GITHUB_SHA" --title "IMPOSTER for Android" --notes "Install IMPOSTER.apk on Android 7.0+. Offline game, no accounts. Development-signed APK; verified by automated Android emulator playthrough. Samsung hardware testing remains unverified."
+          gh release upload android-latest IMPOSTER.apk --clobber
       - uses: actions/upload-artifact@v4
         with:
           name: imposter-android-apk
