@@ -1,6 +1,6 @@
 {
   "name": "imposter-game",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Offline, private pass-and-play party game for 3\u201320 players",

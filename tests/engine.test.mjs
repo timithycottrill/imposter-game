@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { PICTURE_INDEX, ATLAS_COLUMNS, ATLAS_ROWS } from '../src/picture-index.ts';
 import assert from 'node:assert/strict';
 import { initialState, transition, generateRound, roleFor, randomIndex, WORDS } from '../src/engine.ts';
 
@@ -76,4 +77,40 @@ test('same imposter may be selected in consecutive rounds and privacy hides curr
   for(let p=0;p<4;p++){s=transition(s,{type:'REVEAL'});s=transition(s,{type:'HIDE'});}
   s=transition(s,{type:'ANSWER'});s=transition(s,{type:'NEW_ROUND'},()=>0);
   assert.equal(s.round.imposter,0);
+});
+
+test('every secret word has bundled art and every player receives a distinct stable picture variant',()=>{
+  for(const entry of WORDS){
+    assert.ok(Number.isInteger(PICTURE_INDEX[entry.word]),entry.word);
+    assert.ok(PICTURE_INDEX[entry.word] < ATLAS_COLUMNS * ATLAS_ROWS);
+  }
+  for(let count=3;count<=20;count++){
+    let s=transition(initialState(count),{type:'START'});
+    assert.equal(s.round.pictureVariants.length,count);
+    assert.equal(new Set(s.round.pictureVariants).size,count);
+    for(let player=0;player<count;player++){
+      s=transition(s,{type:'REVEAL'});
+      const first=roleFor(s);assert.equal(first.variant,s.round.pictureVariants[player]);
+      if(first.imposter) assert.ok(!('word' in first));
+      s=transition(s,{type:'PRIVACY'});s=transition(s,{type:'REVEAL'});
+      assert.deepEqual(roleFor(s),first);
+      s=transition(s,{type:'HIDE'});
+    }
+  }
+});
+
+test('topics include holidays, constrain selection, and persist across new rounds',async()=>{
+  const {TOPICS}=await import('../src/words.ts');
+  assert.ok(TOPICS.some(t=>t.id==='HOLIDAYS'));
+  for(const topic of TOPICS){
+    let s=initialState(4,topic.id);
+    for(let round=0;round<12;round++){
+      s=transition(s,{type:round?'NEW_ROUND':'START'});
+      if(topic.id!=='RANDOM')assert.equal(s.round.pair.topic,topic.id);
+      assert.equal(s.topic,topic.id);
+      for(let p=0;p<4;p++){s=transition(s,{type:'REVEAL'});s=transition(s,{type:'HIDE'});}
+      s=transition(s,{type:'ANSWER'});
+    }
+    s=transition(s,{type:'SETUP'});assert.equal(s.topic,topic.id);
+  }
 });

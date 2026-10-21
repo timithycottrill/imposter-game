@@ -1,24 +1,31 @@
 import { useEffect, useLayoutEffect, useReducer, useRef } from 'react';
+import { TOPICS, type Topic } from './words';
+import { Picture, WORD_ART, IMPOSTER_ART } from './Picture';
 import { initialState, transition, roleFor, type GameEvent } from './engine';
 
+function savedTopic() { try { return localStorage.getItem('imposter-topic'); } catch { return 'RANDOM'; } }
 function savedCount() {
   try { return Number(localStorage.getItem('imposter-count')); } catch { return 4; }
 }
 export default function App() {
-  const [state, dispatch] = useReducer((s: ReturnType<typeof initialState>, e: GameEvent) => transition(s, e), undefined, () => initialState(savedCount()));
+  const [state, dispatch] = useReducer((s: ReturnType<typeof initialState>, e: GameEvent) => transition(s, e), undefined, () => initialState(savedCount(), savedTopic()));
   const heading = useRef<HTMLHeadingElement>(null);
   const lastAction = useRef(-Infinity);
   function send(event: GameEvent) {
     const now = performance.now();
-    if (event.type !== 'COUNT') {
+    if (event.type !== 'COUNT' && event.type !== 'TOPIC') {
       if (now - lastAction.current < 240) return;
       lastAction.current = now;
     }
     dispatch(event);
   }
   useEffect(() => {
-    try { localStorage.setItem('imposter-count', String(state.count)); } catch { /* Storage is optional. */ }
-  }, [state.count]);
+    // Warm the bundled pictures while the group chooses its player count.
+    for (const src of [WORD_ART, IMPOSTER_ART]) { const image = new Image(); image.src = src; }
+  }, []);
+  useEffect(() => {
+    try { localStorage.setItem('imposter-count', String(state.count)); localStorage.setItem('imposter-topic', state.topic); } catch { /* Storage is optional. */ }
+  }, [state.count, state.topic]);
   useLayoutEffect(() => { heading.current?.focus({ preventScroll: true }); }, [state.phase, state.player]);
   useEffect(() => {
     const hide = () => { if (document.hidden) dispatch({ type: 'PRIVACY' }); };
@@ -38,14 +45,17 @@ export default function App() {
         <button type="button" className="step" aria-label="Decrease number of players" disabled={state.count === 3} onClick={() => send({ type: 'COUNT', count: state.count - 1 })}>−</button>
         <output aria-live="polite" aria-label={`Number of players: ${state.count}`}>{state.count}</output>
         <button type="button" className="step" aria-label="Increase number of players" disabled={state.count === 20} onClick={() => send({ type: 'COUNT', count: state.count + 1 })}>+</button>
-      </div></>;
+      </div><div className="topic-picker"><label htmlFor="topic">TOPIC</label>
+        <select id="topic" aria-label="Topic" value={state.topic} onChange={e => send({ type: 'TOPIC', topic: e.target.value as Topic })}>
+          {TOPICS.map(topic => <option key={topic.id} value={topic.id}>{topic.label}</option>)}
+        </select></div></>;
       footer = button('START ROUND', { type: 'START' }); break;
     case 'PASS_PHONE':
       content = <>{title(`PLAYER ${state.player + 1}`)}{help(`Pass the phone to Player ${state.player + 1}.`)}{help('Make sure nobody else is looking.')}</>;
       footer = button('REVEAL', { type: 'REVEAL' }); break;
     case 'REVEAL_ROLE': {
       const role = roleFor(state)!;
-      content = <>{title(`PLAYER ${state.player + 1}`)}{role.imposter ? <>{value('IMPOSTER')}{help('You do not know the secret word.')}</> : <>{label('SECRET WORD')}{value(role.word!)}</>}</>;
+      content = <>{title(`PLAYER ${state.player + 1}`)}{role.imposter ? <><Picture imposter variant={role.variant} />{value('IMPOSTER')}{help('You do not know the secret word.')}</> : <><Picture word={role.word} variant={role.variant} />{label('SECRET WORD')}{value(role.word!)}</>}</>;
       footer = button(state.player === state.count - 1 ? 'FIND THE IMPOSTER' : 'HIDE & NEXT PLAYER', { type: 'HIDE' }); break;
     }
     case 'DISCUSSION':
@@ -56,5 +66,5 @@ export default function App() {
       footer = <>{button('NEW ROUND', { type: 'NEW_ROUND' })}{button('Change player count', { type: 'SETUP' }, 'secondary')}</>; break;
   }
   // A keyed subtree removes all previous private content in the same commit.
-  return <main data-phase={state.phase}><section className="content" key={`${state.phase}-${state.player}`}>{content}</section><footer key={`action-${state.phase}-${state.player}`}>{footer}</footer></main>;
+  return <main data-phase={state.phase} data-role={state.phase === 'REVEAL_ROLE' ? (roleFor(state)!.imposter ? 'imposter' : 'regular') : undefined}><section className="content" key={`${state.phase}-${state.player}`}>{content}</section><footer key={`action-${state.phase}-${state.player}`}>{footer}</footer></main>;
 }

@@ -6,6 +6,6 @@ export default defineConfig({
   plugins: [react(), VitePWA({
     registerType: 'prompt', injectRegister: 'script',
     manifest: false,
-    workbox: { globPatterns: ['**/*.{js,css,html,png,webmanifest}'], navigateFallback: 'index.html', cleanupOutdatedCaches: true, clientsClaim: true, skipWaiting: false },
+    workbox: { globPatterns: ['**/*.{js,css,html,png,webp,webmanifest}'], navigateFallback: 'index.html', cleanupOutdatedCaches: true, clientsClaim: true, skipWaiting: false },
   })],
 });

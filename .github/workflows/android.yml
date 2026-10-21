@@ -24,6 +24,8 @@ jobs:
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'build-tools;35.0.0'
       - run: npm ci
       - run: npm test
+      - name: Generate bundled word pictures if needed
+        run: bash scripts/prepare-art.sh
       - run: npm run build
       - run: npm run android:sync
       - run: chmod +x android/gradlew
@@ -51,8 +53,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk IMPOSTER.apk
-          gh release view android-latest >/dev/null 2>&1 || gh release create android-latest --target "$GITHUB_SHA" --title "IMPOSTER for Android" --notes "Install IMPOSTER.apk on Android 7.0+. Offline game, no accounts. Development-signed APK; verified by automated Android emulator playthrough. Samsung hardware testing remains unverified."
-          gh release upload android-latest IMPOSTER.apk --clobber
+          VERSION="$(node -p "require('./package.json').version")"
+          TAG="android-v$VERSION"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --title "IMPOSTER $VERSION — Picture Edition" --notes "Different randomized illustrated scenes for regular players, picture plus secret word, and a mischievous red imposter. All art is bundled for offline play. Development-signed APK verified by automated Android emulator playthrough. If upgrading from an older debug APK, uninstall it first because signing certificates can differ. Physical Samsung hardware testing remains unverified."
+          gh release upload "$TAG" IMPOSTER.apk --clobber
       - uses: actions/upload-artifact@v4
         with:
           name: imposter-android-apk

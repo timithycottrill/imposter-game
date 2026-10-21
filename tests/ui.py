@@ -18,7 +18,13 @@ def run():
   def phase(s):expect(page.locator('main')).to_have_attribute('data-phase',s)
   def count(n):expect(page.locator('output')).to_have_text(str(n))
   def fit(): assert page.evaluate('document.documentElement.scrollHeight <= innerHeight'), 'Unexpected scrolling'
-  count(4);fit();tap('Decrease number of players');count(3)
+  count(4);fit()
+  expect(page.get_by_label('Topic',exact=True)).to_have_value('RANDOM')
+  page.get_by_label('Topic',exact=True).select_option('HOLIDAYS')
+  page.reload();phase('SETUP')
+  expect(page.get_by_label('Topic',exact=True)).to_have_value('HOLIDAYS')
+  page.get_by_label('Topic',exact=True).select_option('RANDOM')
+  tap('Decrease number of players');count(3)
   expect(page.get_by_label('Decrease number of players')).to_be_disabled()
   for n in range(4,21):tap('Increase number of players');count(n)
   expect(page.get_by_label('Increase number of players')).to_be_disabled()
@@ -30,20 +36,31 @@ def run():
   }).observe(document.getElementById('app'),{childList:true,subtree:true,characterData:true}); }''')
   def complete_round(players, begin=True):
    if begin:tap('START ROUND')
-   phase('PASS_PHONE');imposters=[];words=[]
+   phase('PASS_PHONE');imposters=[];words=[];variants=[]
    for i in range(players):
     expect(page.get_by_role('heading')).to_have_text(f'PLAYER {i+1}')
     expect(page.locator('.value')).to_have_count(0)
+    expect(page.locator('[data-picture]')).to_have_count(0)
     expect(page.get_by_text('ONE-WORD HINT',exact=True)).to_have_count(0)
     tap('REVEAL');phase('REVEAL_ROLE');fit()
     expect(page.get_by_text('ONE-WORD HINT',exact=True)).to_have_count(0)
+    expect(page.locator('[data-picture]')).to_be_visible()
+    variants.append(page.locator('[data-picture]').get_attribute('data-variant'))
     if page.get_by_text('You do not know the secret word.',exact=True).count():
      imposters.append(i+1);expect(page.get_by_text('SECRET WORD',exact=True)).to_have_count(0)
      expect(page.locator('.value')).to_have_text('IMPOSTER')
-    else:words.append(page.locator('.value').inner_text())
+     expect(page.locator('main')).to_have_attribute('data-role','imposter')
+     expect(page.locator('[data-picture]')).to_have_attribute('data-subject','IMPOSTER')
+     assert not page.locator('[data-picture]').get_by_role('img',name='Illustration of').count()
+    else:
+     words.append(page.locator('.value').inner_text())
+     expect(page.locator('[data-picture]')).to_have_attribute('data-subject',words[-1])
+     expect(page.locator('main')).to_have_attribute('data-role','regular')
     tap('FIND THE IMPOSTER' if i==players-1 else 'HIDE & NEXT PLAYER')
     phase('DISCUSSION' if i==players-1 else 'PASS_PHONE')
    assert len(imposters)==1;assert len(set(words))==1
+   assert len(set(variants))==players
+   expect(page.locator('[data-picture]')).to_have_count(0)
    expect(page.get_by_text('ONE-WORD HINT',exact=True)).to_be_visible()
    hint=page.locator('.value').inner_text();assert len(hint.split())==1;fit()
    tap('REVEAL ANSWER');phase('ANSWER');fit()
@@ -51,6 +68,8 @@ def run():
    expect(page.locator('.value').nth(1)).to_have_text(f'PLAYER {imposters[0]}')
    expect(page.get_by_text('ONE-WORD HINT',exact=True)).to_have_count(0)
    return words[0]
+  for asset in ['art/words.webp','art/imposter.webp']:
+   assert ctx.request.get(BASE+asset).ok
   last=complete_round(20)
   # Consecutive NEW ROUND UI cycles; all counts checked, including 3 and 20.
   for r in range(100):
@@ -72,6 +91,7 @@ def run():
   page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))")
   phase('PASS_PHONE');expect(page.get_by_role('heading')).to_have_text(player)
   page.evaluate("delete document.hidden")
+  page.screenshot(path=str(ART/'picture-reveal.png'))
   # Intentional rapid double tap must not expose the next role.
   page.clock.fast_forward(300);page.get_by_role('button',name='REVEAL',exact=True).dblclick(delay=20)
   phase('REVEAL_ROLE')
@@ -99,9 +119,15 @@ def run():
   assert not install_errors,install_errors
   cache_urls=page.evaluate('''async()=>{const names=await caches.keys();return (await Promise.all(names.map(async n=>(await (await caches.open(n)).keys()).map(r=>r.url)))).flat()}''')
   assert any('index' in u and '.js' in u for u in cache_urls)
+  assert any('words.webp' in u for u in cache_urls)
+  assert any('imposter.webp' in u for u in cache_urls)
   # Entire round succeeds with network disabled, after an offline page reload.
   ctx.set_offline(True);page.reload();phase('SETUP');count(target+1)
-  complete_round(target+1)
+  page.get_by_label('Topic',exact=True).select_option('HOLIDAYS')
+  holiday_word=complete_round(target+1)
+  raw=Path('src/words.ts').read_text().split('Santa|',1)[1].split('`',1)[0]
+  holiday_words={'SANTA'}|{line.split('|')[0].upper() for line in raw.splitlines() if '|' in line}
+  assert holiday_word in holiday_words
   tap('NEW ROUND');phase('PASS_PHONE')
   ctx.set_offline(False)
   for size in [{'width':360,'height':640},{'width':412,'height':915},{'width':320,'height':568},{'width':780,'height':360}]:
