@@ -1,0 +1,35 @@
+{
+  "name": "imposter-game",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline, private pass-and-play party game for 3\u201320 players",
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "test": "node --import tsx --test --test-isolation=none tests/engine.test.mjs",
+    "test:ui": "python tests/ui.py",
+    "android:sync": "cap sync android"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@playwright/test": "^1.64.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vite-plugin-pwa": "^2.0.0"
+  }
+}
